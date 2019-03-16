@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+    <class name="com.wsj.eshop.bean.Order" table="orders">
+         <id name="oid">
+              <generator class="native"></generator>
+         </id>
+         <property name="total"></property>
+         <property name="state"></property>
+         <property name="ordertime"></property>
+         <property name="name"></property>
+         <property name="phone"></property>
+         <property name="addr"></property>
+         
+         <many-to-one name="user" lazy="false" class="com.wsj.eshop.bean.User" column="uid"></many-to-one>
+         
+         <!-- 级联 必须是cascade="save-update"-->
+         <set name="orderItems" lazy="false" cascade="save-update">
+              <key column="oid"></key>
+              <one-to-many class="com.wsj.eshop.bean.OrderItem"/>
+         </set>
+    </class>
+</hibernate-mapping>

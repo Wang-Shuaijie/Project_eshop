@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<constant name="struts.devMode" value="false"></constant>
+	<package name="eshop" extends="struts-default" namespace="">
+		<interceptors>
+			<interceptor name="privilegeInterceptor" class="privilegeInterceptor"/>			
+		</interceptors>
+				<!-- 全局结果集定义(拦截器跳转) -->
+		<global-results>
+			<result name="login">/page/admin/index.jsp</result>
+		</global-results>
+
+		<action name="index" class="indexAction">
+			<result name="success">/page/index.jsp</result>
+		</action>
+		<!-- 验证码Action -->
+		<action name="checkImg" class="checkImgAction"></action>
+		<!-- 配置action -->
+		<action name="user_*" class="userAction" method="{1}">
+			<result name="registPage">/page/regist.jsp</result>
+			<result name="loginPage">/page/login.jsp</result>
+			<result name="login">/page/login.jsp</result>
+			<result name="msg">/page/msg.jsp</result>
+			<result name="success" type="redirectAction">index</result>
+			<result name="quit" type="redirectAction">index</result>
+		</action>
+		<action name="product_*" class="productAction" method="{1}">
+			<result name="findByPid">/page/product.jsp</result>
+			<result name="findByCid">/page/productlist.jsp</result>
+			<result name="findByCsid">/page/productlist.jsp</result>
+		</action>
+		<action name="cart_*" class="cartAction" method="{1}">
+			<result name="addCart">/page/cart.jsp</result>
+			<result name="clearCart">/page/cart.jsp</result>
+			<result name="removeCart">/page/cart.jsp</result>
+			<result name="myCart">/page/cart.jsp</result>
+		</action>
+		<action name="order_*" class="orderAction" method="{1}">
+			<result name="msg">/page/msg.jsp</result>
+			<result name="saveOrder">/page/order.jsp</result>
+			<result name="findByUid">/page/orderlist.jsp</result>
+			<result name="findByOid">/page/order.jsp</result>
+			<result name="updateStateSuccess" type="redirectAction">order_findByUid.action?page=1
+			</result>
+		</action>
+
+		<!-- 后台管理action -->
+		<action name="administrator_*" class="administratorAction"
+			method="{1}">
+			<result name="loginFail">/page/admin/index.jsp</result>
+			<result name="loginSuccess" type="redirect">/page/admin/home.jsp</result>
+			<interceptor-ref name="privilegeInterceptor">
+				<param name="excludeMethods">login</param>   <!-- 登录方法不要过滤 -->
+			</interceptor-ref>
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="adminUser_*" class="adminUserAction" method="{1}">
+			<result name="findAll">/page/admin/user/list.jsp</result>
+			<result name="deleteSuccess" type="redirectAction">adminUser_findAll.action?page=1
+			</result>
+			<result name="editSuccess">/page/admin/user/edit.jsp</result>
+			<result name="updateSuccess" type="redirectAction">adminUser_findAll.action?page=1
+			</result>
+			<interceptor-ref name="privilegeInterceptor" />
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="adminCategory_*" class="adminCategoryAction"
+			method="{1}">
+			<result name="findAll">/page/admin/category/list.jsp</result>
+			<result name="saveSuccess" type="redirectAction">adminCategory_findAll</result>
+			<result name="deleteSuccess" type="redirectAction">adminCategory_findAll
+			</result>
+			<result name="editSuccess">/page/admin/category/edit.jsp</result>
+			<result name="updateSuccess" type="redirectAction">adminCategory_findAll
+			</result>
+			<interceptor-ref name="privilegeInterceptor" />
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="adminCategorySecond_*"
+			class="adminCategorySecondAction" method="{1}">
+			<result name="findAll">/page/admin/categorysecond/list.jsp</result>
+			<result name="addPage">/page/admin/categorysecond/add.jsp</result>
+			<result name="saveSuccess" type="redirectAction">adminCategorySecond_findAll?page=1
+			</result>
+			<result name="deleteSuccess" type="redirectAction">adminCategorySecond_findAll?page=1
+			</result>
+			<result name="editSuccess">/page/admin/categorysecond/edit.jsp</result>
+			<result name="updateSuccess" type="redirectAction">adminCategorySecond_findAll?page=1
+			</result>
+			<interceptor-ref name="privilegeInterceptor" />
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="adminProduct_*" class="adminProductAction"
+			method="{1}">
+			<result name="findAll">/page/admin/product/list.jsp</result>
+			<result name="addPageSuccess">/page/admin/product/add.jsp</result>
+			<result name="saveSuccess" type="redirectAction">adminProduct_findAll.action?page=1
+			</result>
+			<result name="deleteSuccess" type="redirectAction">adminProduct_findAll.action?page=1
+			</result>
+			<result name="editSuccess">/page/admin/product/edit.jsp</result>
+			<result name="updateSuccess" type="redirectAction">adminProduct_findAll.action?page=1
+			</result>
+			<interceptor-ref name="privilegeInterceptor" />
+			<interceptor-ref name="defaultStack" />
+		</action>
+		<action name="adminOrder_*" class="adminOrderAction"
+			method="{1}">
+			<result name="findAll">/page/admin/order/list.jsp</result>
+			<result name="updateStateSuccess" type="redirectAction">adminOrder_findAll.action?page=1
+			</result>
+			<result name="findOrderItem">/page/admin/order/orderItem.jsp
+			</result>
+			<interceptor-ref name="privilegeInterceptor" />
+			<interceptor-ref name="defaultStack" />
+		</action>
+	</package>
+</struts>

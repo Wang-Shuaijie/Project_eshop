@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	
+	<!-- 配置连接池 -->
+	<!-- 引入外部属性文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties"/>
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!-- name属性固定 -->	
+		<property name="driverClass" value="${driver}"/>
+		<property name="jdbcUrl" value="${url}"/>
+		<property name="user" value="${username}"/>
+		<property name="password" value="${password}"/>
+	</bean>
+	<!-- Hibernate的相关信息 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+	    <!-- 注入连接池 -->
+		<property name="dataSource" ref="dataSource"/>
+		<!-- 配置Hibernate的其他的属性 -->
+		<property name="hibernateProperties">
+		     <props>
+		        <!-- 指定数据库方言 -->
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+				<!-- 显示hibernate持久化操作所生成的sql语句 -->
+				<prop key="hibernate.show_sql">true</prop>
+				<!-- 将sql脚本格式化在输出 -->
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.connection.autocommit">false</prop>
+				<!-- 是否根据需要每次自动创建数据库 -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+		     </props>
+		</property>
+		<!-- 配置Hibernate的映射文件 -->
+		<property name="mappingResources">
+		     <list>
+		         <value>com/wsj/eshop/bean/User.hbm.xml</value>  
+		         <value>com/wsj/eshop/bean/Product.hbm.xml</value>  
+		         <value>com/wsj/eshop/bean/Category.hbm.xml</value>  
+		         <value>com/wsj/eshop/bean/CategorySecond.hbm.xml</value>  
+		         <value>com/wsj/eshop/bean/Order.hbm.xml</value>  
+		         <value>com/wsj/eshop/bean/OrderItem.hbm.xml</value>  
+		         <value>com/wsj/eshop/bean/Administrator.hbm.xml</value>
+		     </list>  
+		</property>
+	</bean>
+	
+	<!-- 事务管理 -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+	    <property name="sessionFactory" ref="sessionFactory"></property> 
+	</bean>
+	<!-- 开启注解事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<!-- Dao的配置  ===============================-->
+	<bean id="userDao" class="com.wsj.eshop.dao.UserDao">
+	     <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="productDao" class="com.wsj.eshop.dao.ProductDao">
+	     <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="categoryDao" class="com.wsj.eshop.dao.CategoryDao">
+	     <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="categorySecondDao" class="com.wsj.eshop.dao.CategorySecondDao">
+	     <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="orderDao" class="com.wsj.eshop.dao.OrderDao">
+	     <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<bean id="administratorDao" class="com.wsj.eshop.dao.AdministratorDao">
+	     <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- Service的配置  ===========================-->
+	<bean id="userService" class="com.wsj.eshop.service.UserService">
+	     <property name="userDao" ref="userDao"></property>
+	</bean>
+	<bean id="productService" class="com.wsj.eshop.service.ProductService">
+	     <property name="productDao" ref="productDao"></property>
+	</bean>
+	<bean id="categoryService" class="com.wsj.eshop.service.CategoryService">
+	     <property name="categoryDao" ref="categoryDao"></property>
+	</bean>
+	<bean id="categorySecondService" class="com.wsj.eshop.service.CategorySecondService">
+	     <property name="categorySecondDao" ref="categorySecondDao"></property>
+	</bean>
+	<bean id="orderService" class="com.wsj.eshop.service.OrderService">
+	     <property name="orderDao" ref="orderDao"></property>
+	</bean>
+	<bean id="administratorService" class="com.wsj.eshop.service.AdministratorService">
+	     <property name="administratorDao" ref="administratorDao"></property>
+	</bean>
+	
+	<!-- Action的配置 =============================-->
+	<!-- 必须有scope属性,默认为scope="singleton" 唯一的，进行添加操作不会新建，所以最好scope="prototype" -->
+	<!-- 首页访问Action -->
+	<bean id="indexAction" class="com.wsj.eshop.web.action.IndexAction">
+	     <property name="productService" ref="productService"></property>
+	     <property name="categoryService" ref="categoryService"></property>
+	</bean>
+	<!-- 配置验证码Action -->
+	<bean id="checkImgAction" class="com.wsj.eshop.web.action.CheckImgAction" scope="prototype">		
+	</bean>
+	<!-- 用户模块的Action -->
+	<bean id="userAction" class="com.wsj.eshop.web.action.UserAction" scope="prototype">
+		<!-- 注入Service -->
+		<property name="userService" ref="userService"/>
+	</bean>
+	<!-- 商品模块action -->
+	<bean id="productAction" class="com.wsj.eshop.web.action.ProductAction" scope="prototype">
+	    <property name="productService" ref="productService"></property>
+	</bean>
+	<!-- 购物车模块action -->
+	<bean id="cartAction" class="com.wsj.eshop.web.action.CartAction" scope="prototype">
+	    <property name="productService" ref="productService"></property>
+	</bean>
+	<!-- 订单模块action -->
+	<bean id="orderAction" class="com.wsj.eshop.web.action.OrderAction">
+	    <property name="orderService" ref="orderService"></property>
+	</bean>
+	<!-- 拦截器 -->
+	<bean id="privilegeInterceptor" class="com.wsj.eshop.web.interceptor.PrivilegeInterceptor"></bean>
+	<!-- 后台管理模块action -->
+	<bean id="administratorAction" class="com.wsj.eshop.web.action.admin.AdministratorAction">
+	    <property name="administratorService" ref="administratorService"></property>
+	</bean>
+	<bean id="adminUserAction" class="com.wsj.eshop.web.action.admin.AdminUserAction">
+	    <property name="userService" ref="userService"></property>
+	</bean>
+	<bean id="adminProductAction" class="com.wsj.eshop.web.action.admin.AdminProductAction">
+	    <property name="categorySecondService" ref="categorySecondService"></property>
+	    <property name="productService" ref="productService"></property>
+	</bean>
+	<bean id="adminCategoryAction" class="com.wsj.eshop.web.action.admin.AdminCategoryAction">
+	    <property name="categoryService" ref="categoryService"></property>
+	</bean>
+	<bean id="adminCategorySecondAction" class="com.wsj.eshop.web.action.admin.AdminCategorySecondAction">
+	    <property name="categoryService" ref="categoryService"></property>
+	    <property name="categorySecondService" ref="categorySecondService"></property>
+	</bean>
+	<bean id="adminOrderAction" class="com.wsj.eshop.web.action.admin.AdminOrderAction">
+	    <property name="orderService" ref="orderService"></property>
+	</bean>
+</beans>	
